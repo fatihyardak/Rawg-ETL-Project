@@ -8,18 +8,17 @@ class DataProcessor:
         self.data = []
 
     def load_data(self):
-        """Veriyi ham JSON dosyasından yükler."""
         with open(self.raw_data_path, "r") as f:
             self.data = json.load(f)
 
     def normalize_data(self):
-        """Veriyi normalize ederek oyun, mağaza ve platform bilgilerini ayrıştırır."""
+        
         games = []
         game_stores = []
         game_platforms = []
 
         for game in self.data:
-            # Temel oyun bilgilerini sakla
+            # Keep only the desired keys
             games.append({
                 "slug": game.get("slug"),
                 "name": game.get("name"),
@@ -28,7 +27,7 @@ class DataProcessor:
                 "released": game.get("released")
             })
 
-            # Mağaza bilgilerini normalize et
+            # Normalize the store data
             if game.get("store"):
                 for store in game["store"]:
                     game_stores.append({
@@ -36,12 +35,12 @@ class DataProcessor:
                         "store": store["store"]["name"]  # Sadece mağaza adını al
                     })
 
-            # Platform bilgilerini normalize et
+            # Normalize the platform data
             if game.get("platform"):
                 for platform in game["platform"]:
                     game_platforms.append({
                         "slug": game["slug"],
-                        "platform": platform["platform"]["name"]  # Sadece platform adını al
+                        "platform": platform["platform"]["name"]  
                     })
 
         return games, game_stores, game_platforms
