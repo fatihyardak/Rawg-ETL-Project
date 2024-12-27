@@ -21,23 +21,34 @@ def fetch_rawg_data(api_url="https://api.rawg.io/api/games", page_size=20, total
         if len(data['results']) == 0:  # iif data is empty 
             break
         
-        all_games.extend(data['results'])
+        # Keep only the desired keys
+        filtered_games = []
+        for game in data['results']:
+            filtered_game = {
+                'slug': game.get('slug'),
+                'name': game.get('name'),
+                'playtime': game.get('playtime'),
+                'store': game.get('stores'),  # Nested structure
+                'rating': game.get('rating'),
+                'released': game.get('released'),
+                'parent_platforms': game.get('parent_platforms'),  # Nested structure
+                'platform': game.get('platforms')  # Nested structure
+            }
+            filtered_games.append(filtered_game)
+        
+        all_games.extend(filtered_games)
         if len(data['results']) < page_size:  
             break
         page += 1
     return all_games[:total_games]  # total game  
 
-# JSON Path
-output_dir = 'data/raw'
-output_file_path = os.path.join(output_dir, 'games_data.json')
-
-
-if not os.path.exists(output_file_path):
-    os.makedirs(output_dir, exist_ok=True)  # reposity create if not exist 
-    games = fetch_rawg_data()  
-    with open(output_file_path, 'w') as json_file:
-        json.dump(games, json_file, indent=4)
-else:
-    print(f"Data already exists: '{output_file_path}'")
-
+if __name__ == "__main__":
+    # Fetch the data
+    games_data = fetch_rawg_data()
     
+    # Create the data/raw directory if it doesn't exist
+    os.makedirs('data/raw', exist_ok=True)
+    
+    # Save the data to a JSON file in the data/raw folder
+    with open('data/raw/games_data.json', 'w') as f:
+        json.dump(games_data, f, indent=4)  # Save the data  
